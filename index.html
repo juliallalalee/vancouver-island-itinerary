@@ -80,9 +80,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 
 @media(max-width:768px){
   .layout{flex-direction:column;height:auto;overflow:auto}
-  .sidebar{width:100%;max-width:100%;height:auto;overflow:visible;border-right:none;border-bottom:1px solid #e8e6e0}
-  .map-pane{height:300px;flex:none}
-
+  .sidebar{width:100%;max-width:100%;height:auto;overflow:visible;border-right:none;border-bottom:1px solid #e8e6e0;transition:none}
+  .sidebar.expanded{width:100%;max-width:100%}
+  .map-pane{height:300px;flex:none;transition:height 0.3s,opacity 0.3s;overflow:hidden}
+  .map-pane.collapsed{height:0;opacity:0;pointer-events:none}
+  .map-toggle-btn{top:8px;left:8px;font-size:11px;padding:5px 10px}
 }
 .leaflet-popup-content-wrapper{border-radius:10px!important;box-shadow:0 4px 20px rgba(0,0,0,0.12)!important;border:none!important}
 .leaflet-popup-content{margin:10px 14px!important;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif!important}
@@ -144,14 +146,14 @@ const days=[
     ]
   },
   {
-    date:"Saturday, June 27",label:"Richmond → BC Ferries → Vancouver Island",bg:"#E6F1FB",fg:"#0C447C",
+    date:"Saturday, June 27",label:"Richmond → BC Ferries → Victoria",bg:"#E6F1FB",fg:"#0C447C",
     ferry:{label:"⛴ BC Ferries — booked",note:"Tsawwassen → Swartz Bay · Departs 4:00pm · Arrives 5:35pm"},alert:null,
-    stay:{name:"Surf Junction Campground",note:"Arrive tonight, set up camp"},
-    mapPin:{lat:49.0100,lng:-123.1300,name:"Tsawwassen Ferry Terminal",desc:"Depart 4:00pm → Swartz Bay · Book car spot on bcferries.com"},
+    stay:{name:"Hotel in Victoria",note:"1 night · downtown Victoria · Inner Harbour area"},
+    mapPin:{lat:48.4208,lng:-123.3692,name:"Victoria, BC",desc:"Night 2 · Stay in Victoria after ferry · Inner Harbour area"},
     pins:[
       {label:"BC Ferries booked ✓",link:null},
       {label:"T&T Supermarket for groceries",link:null},
-      {label:"Surf Junction check-in",link:"https://www.surfjunction.com"}
+      {label:"Book Victoria hotel",link:null}
     ],
     acts:[
       {t:"9:00am",x:"Explore Richmond — one of the best Asian food cities in North America"},
@@ -161,14 +163,34 @@ const days=[
       {t:"1:30pm",x:"Grocery run at T&T Supermarket for camp supplies — massive Asian grocery"},
       {t:"3:00pm",x:"Drive to Tsawwassen Ferry Terminal (~30 min from Richmond)"},
       {t:"4:00pm",x:"Board BC Ferries — Tsawwassen → Swartz Bay"},
-      {t:"5:35pm",x:"Arrive Swartz Bay, drive north on Hwy 1 → Nanaimo → Hwy 4 west"},
-      {t:"6:30pm",x:"Dinner stop in Nanaimo or Port Alberni — don't arrive at camp hungry"},
-      {t:"8:30pm",x:"Arrive Surf Junction Campground, set up camp"}
+      {t:"5:35pm",x:"Arrive Swartz Bay, drive south to Victoria (~30 min)"},
+      {t:"6:15pm",x:"Check into Victoria hotel — drop bags, freshen up"},
+      {t:"7:30pm",x:"Dinner in Victoria — Fisherman's Wharf, Chinatown, or Inner Harbour restaurants"},
+      {t:"9:00pm",x:"Evening stroll along the Inner Harbour — lit up beautifully at night"}
     ]
   },
   {
-    date:"Sunday, June 28",label:"Surf + Whale Watching — Tofino",bg:"#E1F5EE",fg:"#085041",ferry:null,alert:null,
-    stay:{name:"Surf Junction Campground",note:"Night 1 of 3 · between Tofino and Ucluelet"},
+    date:"Sunday, June 28",label:"Victoria → Cathedral Grove → Sproat Lake → Surf Junction",bg:"#E1F5EE",fg:"#085041",ferry:null,alert:null,
+    stay:{name:"Surf Junction Campground",note:"Night 1 of 3 · check-in today · between Tofino and Ucluelet"},
+    mapPin:{lat:49.1500,lng:-124.9000,name:"Surf Junction Campground",desc:"Night 1 of 3 · Between Tofino and Ucluelet · Central base for Pacific Rim"},
+    pins:[
+      {label:"Surf Junction check-in",link:"https://www.surfjunction.com"},
+      {label:"Cathedral Grove — free entry",link:"https://www.pc.gc.ca"}
+    ],
+    acts:[
+      {t:"8:00am",x:"Checkout Victoria hotel, grab breakfast in town"},
+      {t:"9:00am",x:"Quick explore: Beacon Hill Park or Government Street before heading north"},
+      {t:"10:00am",x:"Drive north on Hwy 1 → Nanaimo → Parksville, turn west on Hwy 4 (~2.5 hrs)"},
+      {t:"12:30pm",x:"Stop: Cathedral Grove / MacMillan Provincial Park — ancient 800-year-old Douglas firs. 45-min walk through the forest. Free, unmissable"},
+      {t:"2:00pm",x:"Stop: Sproat Lake — one of the warmest lakes on Vancouver Island. Kayak, SUP, swim. Don't miss the Indigenous petroglyphs at the east end pier"},
+      {t:"4:00pm",x:"Continue west on Hwy 4 (~1.5 hrs) to Surf Junction"},
+      {t:"5:30pm",x:"Arrive Surf Junction, check in, set up camp"},
+      {t:"7:00pm",x:"Camp dinner — cook at camp or grab food in Ucluelet on the way"}
+    ]
+  },
+  {
+    date:"Monday, June 29",label:"Surf + Whale Watching — Tofino",bg:"#FAEEDA",fg:"#633806",ferry:null,alert:null,
+    stay:{name:"Surf Junction Campground",note:"Night 2 of 3"},
     mapPin:{lat:49.1529,lng:-125.9066,name:"Tofino",desc:"Surf lesson at Cox Bay · Whale watching zodiac · Wolf in the Fog dinner"},
     pins:[
       {label:"Surf lesson: surfsister.com",link:"https://www.surfsister.com"},
@@ -185,16 +207,16 @@ const days=[
     ]
   },
   {
-    date:"Monday, June 29",label:"Hot Springs Cove — full day boat trip",bg:"#FAEEDA",fg:"#633806",ferry:null,alert:null,
-    stay:{name:"Surf Junction Campground",note:"Night 2 of 3"},
-    mapPin:{lat:49.3683,lng:-126.2724,name:"Hot Springs Cove",desc:"Natural geothermal pools at the ocean edge · Boat or floatplane from Tofino harbour · Full day tour"},
+    date:"Tuesday, June 30",label:"Hot Springs Cove — full day boat trip",bg:"#EAF3DE",fg:"#27500A",ferry:null,alert:null,
+    stay:{name:"Surf Junction Campground",note:"Night 3 of 3 · checkout tomorrow morning"},
+    mapPin:{lat:49.3683,lng:-126.2724,name:"Hot Springs Cove",desc:"Natural geothermal pools at the ocean edge · Boat from Tofino harbour · Full day tour"},
     pins:[
       {label:"Hot Springs Cove: remotepassages.com",link:"https://www.remotepassages.com"},
       {label:"Alt: jamieswhaling.com",link:"https://www.jamieswhaling.com"}
     ],
     acts:[
       {t:"8:30am",x:"Drive to Tofino harbour"},
-      {t:"9:00am",x:"Hot Springs Cove boat tour departs — 1.5 hrs north into Clayoquot Sound. Natural geothermal pools right at the Pacific Ocean edge. Book with Remote Passages or Jamie's Whaling Station (~$120–140 CAD/person)"},
+      {t:"9:00am",x:"Hot Springs Cove boat tour departs — 1.5 hrs north into Clayoquot Sound. Natural geothermal pools right at the Pacific Ocean edge (~$120–140 CAD/person)"},
       {t:"12:30pm",x:"Arrive Hot Springs Cove — hike 20 min through old growth to the pools"},
       {t:"1:00pm",x:"Soak in the natural hot spring pools cascading into the ocean — unmissable"},
       {t:"3:00pm",x:"Return boat departs back to Tofino"},
@@ -203,38 +225,24 @@ const days=[
     ]
   },
   {
-    date:"Tuesday, June 30",label:"Pacific Rim National Park",bg:"#EAF3DE",fg:"#27500A",ferry:null,alert:null,
-    stay:{name:"Surf Junction Campground",note:"Night 3 of 3 · checkout tomorrow morning"},
-    mapPin:{lat:49.0000,lng:-125.7500,name:"Pacific Rim National Park",desc:"Long Beach · Rainforest Trail · Schooner Cove · Radar Hill · Kennedy Lake"},
-    pins:[
-      {label:"Parks Canada pass ~$10/person",link:"https://www.pc.gc.ca"},
-      {label:"Pacific Rim NP info",link:"https://www.pc.gc.ca/en/pn-np/bc/pacificrim"}
-    ],
-    acts:[
-      {t:"8:00am",x:"Long Beach — 16km of wild Pacific beach. Walk it, beachcomb, watch for grey whales from shore"},
-      {t:"10:00am",x:"Rainforest Trail A & B — two short loops (~1km each) through ancient moss-covered temperate rainforest. Free, boardwalk paths, surreal"},
-      {t:"11:30am",x:"Schooner Cove Trail — moderate 2km hike through old growth forest to a hidden cove"},
-      {t:"1:00pm",x:"Lunch: grab supplies at Ucluelet Co-op or Tofino"},
-      {t:"2:30pm",x:"Radar Hill — 5-min walk to panoramic views over the entire Pacific Rim coastline"},
-      {t:"4:00pm",x:"Kennedy Lake — peaceful forest-lined lake right off Hwy 4. Swim or paddle on the way back to camp"},
-      {t:"7:00pm",x:"Campfire feast — last night at Surf Junction. Stock up on good food for the occasion"}
-    ]
-  },
-  {
-    date:"Wednesday, July 1",label:"Canada Day · Meares Island Kayak → Waters Edge",bg:"#EEEDFE",fg:"#3C3489",ferry:null,alert:null,
+    date:"Wednesday, July 1",label:"Canada Day · Pacific Rim NP + Meares Island → Waters Edge",bg:"#EEEDFE",fg:"#3C3489",ferry:null,alert:null,
     stay:{name:"Waters Edge Shoreside Suites, Ucluelet",note:"Night 1 of 2 · full kitchen, fireplace, outdoor soaker tub, harbour views"},
     mapPin:{lat:48.9416,lng:-125.5463,name:"Ucluelet — Waters Edge Shoreside Suites",desc:"Private island on Ucluelet harbour · Full kitchen, outdoor soaker tub · 5 min from Wild Pacific Trail"},
     pins:[
       {label:"Meares Island kayak: tofinoseakayaking.com",link:"https://www.tofinoseakayaking.com"},
-      {label:"Dinner: Pluvio — book now",link:"https://www.pluviorestaurant.com"}
+      {label:"Dinner: Pluvio — book now",link:"https://www.pluviorestaurant.com"},
+      {label:"Parks Canada pass ~$10/person",link:"https://www.pc.gc.ca"}
     ],
     acts:[
-      {t:"8:00am",x:"Pack up Surf Junction, drive to Tofino (~30 min)"},
-      {t:"9:00am",x:"Kayak to Meares Island — guided paddle through old growth cedars accessible only by water. Big Tree Trail: massive ancient red cedars. Tofino Sea Kayaking (~$80–100 CAD/person)"},
-      {t:"12:00pm",x:"Lunch in Tofino — explore the harbour, grab a bite at The Shed or Tofino Brewing"},
-      {t:"2:00pm",x:"Drive to Ucluelet (~35 min), check into Waters Edge Shoreside Suites"},
-      {t:"4:00pm",x:"Settle into your harbour suite — watch for sea lions, otters, and eagles from your deck"},
-      {t:"7:00pm",x:"Canada Day celebrations in Ucluelet — bonfire on the beach, local festivities"},
+      {t:"8:00am",x:"Pack up Surf Junction, drive to Pacific Rim National Park"},
+      {t:"8:30am",x:"Long Beach — 16km of wild Pacific beach. Walk it, beachcomb, watch for grey whales from shore"},
+      {t:"10:00am",x:"Rainforest Trail A & B — two short loops through ancient moss-covered temperate rainforest. Free, boardwalk paths"},
+      {t:"11:30am",x:"Schooner Cove Trail — 2km hike through old growth forest to a hidden cove"},
+      {t:"1:00pm",x:"Lunch: grab food in Tofino, then drive to Tofino harbour"},
+      {t:"2:00pm",x:"Kayak to Meares Island — guided paddle, Big Tree Trail through ancient red cedars. Tofino Sea Kayaking (~$80–100 CAD/person)"},
+      {t:"5:00pm",x:"Drive to Ucluelet (~35 min), check into Waters Edge Shoreside Suites"},
+      {t:"6:00pm",x:"Settle in — watch for sea lions, otters, eagles from your suite deck"},
+      {t:"7:00pm",x:"🇨🇦 Canada Day celebrations in Ucluelet — bonfire on the beach, local festivities"},
       {t:"8:00pm",x:"Dinner: Pluvio Restaurant — one of the best restaurants on Vancouver Island (book now at pluviorestaurant.com)"}
     ]
   },
@@ -257,26 +265,25 @@ const days=[
     ]
   },
   {
-    date:"Friday, July 3",label:"Cathedral Grove → Victoria → Ferry → Fly Home",bg:"#F1EFE8",fg:"#5F5E5A",
+    date:"Friday, July 3",label:"Drive East → Victoria → Ferry → Fly Home",bg:"#F1EFE8",fg:"#5F5E5A",
     ferry:{label:"⛴ BC Ferries — MODIFY BOOKING to 4pm",note:"Swartz Bay → Tsawwassen · Departs 4:00pm · Arrives 5:35pm · 5.5 hrs buffer before flight"},
     alert:"Leave Victoria by 3:00pm sharp. Board ferry ~3:30pm. Arrive Tsawwassen 5:35pm → drive YVR 30 min → return rental car → check in + security. Target airport by 8:30pm for 11:15pm flight.",
     stay:{name:"✈️ In the air — JetBlue YVR → JFK",note:"Departs YVR 11:15pm · Arrives JFK next morning"},
-    mapPin:{lat:48.4208,lng:-123.3692,name:"Victoria — Inner Harbour",desc:"Last stop · Fisherman's Wharf, Beacon Hill Park, Government Street · Leave by 3pm for Swartz Bay ferry"},
+    mapPin:{lat:48.4208,lng:-123.3692,name:"Victoria — Inner Harbour",desc:"Last stop · Fisherman's Wharf, Beacon Hill Park · Leave by 3pm for Swartz Bay ferry"},
     pins:[
       {label:"Modify BC Ferries to 4pm: bcferries.com",link:"https://www.bcferries.com"},
       {label:"Leave Victoria by 3pm — no exceptions",link:null}
     ],
     acts:[
       {t:"7:00am",x:"Checkout Waters Edge, drive east on Hwy 4 toward Port Alberni"},
-      {t:"8:30am",x:"Stop: Cathedral Grove / MacMillan Provincial Park — ancient 800-year-old Douglas firs. 45-min walk through the forest. Free entry, unmissable"},
-      {t:"10:30am",x:"Continue south on Hwy 1 toward Victoria (~2 hrs from Cathedral Grove)"},
-      {t:"12:30pm",x:"Arrive Victoria — lunch at Fisherman's Wharf (floating restaurants, fresh fish and chips) or Chinatown"},
-      {t:"1:30pm",x:"Explore Victoria: Inner Harbour waterfront, Beacon Hill Park (free, ocean views), Government Street"},
+      {t:"9:00am",x:"Continue south on Hwy 1 toward Victoria (~2.5 hrs from Ucluelet)"},
+      {t:"11:30am",x:"Arrive Victoria — lunch at Fisherman's Wharf (floating restaurants, fresh fish and chips) or Chinatown"},
+      {t:"12:30pm",x:"Explore Victoria: Inner Harbour waterfront, Beacon Hill Park, Government Street"},
       {t:"3:00pm",x:"Drive to Swartz Bay Ferry Terminal (~30 min from downtown Victoria) — DO NOT be late"},
       {t:"4:00pm",x:"Board BC Ferries — Swartz Bay → Tsawwassen (MODIFY BOOKING to this sailing)"},
       {t:"5:35pm",x:"Arrive Tsawwassen, drive to YVR (~30 min)"},
       {t:"6:10pm",x:"Return rental car at YVR — allow 20 min for this process"},
-      {t:"6:30pm",x:"Check in, clear US customs, security — US pre-clearance at YVR takes time"},
+      {t:"6:30pm",x:"Check in, clear US customs pre-clearance, security — allow extra time"},
       {t:"9:00pm",x:"Grab dinner at YVR — plenty of options airside"},
       {t:"11:15pm",x:"Fly home to NYC — JetBlue YVR → JFK"}
     ]
@@ -436,14 +443,16 @@ function toggleMap(){
   const sidebar=document.getElementById('sidebar');
   const icon=document.getElementById('map-toggle-icon');
   const lbl=document.getElementById('map-toggle-label');
+  const isMobile=window.innerWidth<=768;
   const collapsed=pane.classList.toggle('collapsed');
-  sidebar.classList.toggle('expanded',collapsed);
+  if(!isMobile){sidebar.classList.toggle('expanded',collapsed);}
+  else{sidebar.classList.remove('expanded');}
   if(collapsed){
-    icon.textContent='▶';
-    lbl.textContent='Show map';
+    if(isMobile){icon.textContent='▼';lbl.textContent='Show map';}
+    else{icon.textContent='▶';lbl.textContent='Show map';}
   } else {
-    icon.textContent='◀';
-    lbl.textContent='Hide map';
+    if(isMobile){icon.textContent='▲';lbl.textContent='Hide map';}
+    else{icon.textContent='◀';lbl.textContent='Hide map';}
     setTimeout(()=>{if(window.map)window.map.invalidateSize();},320);
   }
 }
