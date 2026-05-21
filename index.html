@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vancouver Island — June 26 to July 3</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f5f4f0;color:#1a1a18;min-height:100vh;padding:0}
+.layout{display:flex;height:100vh;overflow:hidden}
+.sidebar{width:420px;min-width:320px;max-width:480px;overflow-y:auto;padding:1.5rem 1.25rem;flex-shrink:0;background:#f5f4f0;border-right:1px solid #e8e6e0;transition:width 0.3s,max-width 0.3s}
+.map-pane{flex:1;position:relative;transition:flex 0.3s,width 0.3s;overflow:hidden}
+.map-pane.collapsed{flex:0;width:0;min-width:0}
+.sidebar.expanded{width:100%;max-width:100%;border-right:none}
+.sidebar.expanded .day-card{max-width:860px;margin-left:auto;margin-right:auto}
+.sidebar.expanded .booking-card{max-width:860px;margin-left:auto;margin-right:auto}
+.sidebar.expanded .top-bar{max-width:860px;margin-left:auto;margin-right:auto}
+.sidebar.expanded .hint{max-width:860px;margin-left:auto;margin-right:auto}
+#map{width:100%;height:100%}
+.map-toggle-btn{position:absolute;top:12px;left:12px;z-index:1000;background:#fff;border:1px solid #e8e6e0;border-radius:8px;padding:7px 12px;font-size:12px;font-weight:500;cursor:pointer;font-family:inherit;color:#1a1a18;display:flex;align-items:center;gap:6px;box-shadow:0 1px 4px rgba(0,0,0,0.08)}
+.map-toggle-btn:hover{background:#f5f4f0}
+.sidebar-map-btn{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:500;padding:4px 10px;border-radius:6px;background:#E6F1FB;color:#185FA5;border:1px solid #85B7EB;cursor:pointer;font-family:inherit;margin-bottom:0.75rem}
+.sidebar-map-btn:hover{background:#B5D4F4}
+.top-bar{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:1rem;flex-wrap:wrap;gap:10px}
+.trip-title{font-size:20px;font-weight:600;color:#1a1a18;letter-spacing:-0.3px}
+.trip-sub{font-size:12px;color:#888780;margin-top:3px}
+.progress-wrap{display:flex;align-items:center;gap:8px;padding-top:4px}
+.progress-label{font-size:12px;color:#888780;white-space:nowrap}
+.progress-bar-bg{width:90px;height:5px;background:#e8e6e0;border-radius:999px;overflow:hidden}
+.progress-bar-fill{height:100%;background:#1D9E75;border-radius:999px;transition:width 0.3s}
+.hint{font-size:11px;color:#b4b2a9;margin-bottom:1rem}
+.day-card{background:#fff;border-radius:12px;margin-bottom:8px;overflow:hidden;border:1px solid #e8e6e0}
+.day-header{display:flex;align-items:center;gap:10px;padding:12px 14px;cursor:pointer;user-select:none;transition:background 0.15s}
+.day-header:hover{background:#f9f8f5}
+.day-num{min-width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;flex-shrink:0}
+.day-meta{flex:1;min-width:0}
+.day-date{font-size:11px;color:#888780;margin-bottom:1px}
+.day-label{font-size:13px;font-weight:500;color:#1a1a18}
+.day-progress{font-size:11px;color:#b4b2a9;white-space:nowrap;padding-right:6px}
+.chevron{font-size:16px;color:#b4b2a9;transition:transform 0.2s;flex-shrink:0;line-height:1}
+.chevron.open{transform:rotate(180deg)}
+.day-body{display:none;padding:0 14px 12px;border-top:1px solid #f0efe9}
+.day-body.open{display:block}
+.ferry-bar{display:flex;align-items:center;gap:8px;padding:8px 10px;background:#E6F1FB;border-radius:8px;margin-top:10px;border:1px solid #85B7EB}
+.ferry-name{font-size:12px;font-weight:600;color:#185FA5}
+.ferry-note{font-size:11px;color:#378ADD;margin-top:1px}
+.alert-bar{display:flex;align-items:flex-start;gap:8px;padding:8px 10px;background:#FCEBEB;border-radius:8px;margin-top:8px;border:1px solid #F09595}
+.alert-text{font-size:11px;color:#A32D2D;line-height:1.5}
+.sec-label{font-size:10px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:#b4b2a9;margin:12px 0 6px}
+.activity-row{display:flex;align-items:flex-start;gap:8px;padding:6px 0;border-bottom:1px solid #f5f4f0}
+.activity-row:last-child{border-bottom:none}
+.check-btn{width:18px;height:18px;border-radius:4px;border:1.5px solid #d3d1c7;background:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px;transition:all 0.15s;font-size:11px;color:transparent}
+.check-btn.checked{background:#1D9E75;border-color:#1D9E75;color:#fff}
+.act-time{font-size:10px;color:#b4b2a9;min-width:42px;padding-top:3px;flex-shrink:0;border:none;background:transparent;font-family:inherit;outline:none;width:44px;cursor:text}
+.act-time:focus{color:#888780}
+.act-text{font-size:13px;color:#1a1a18;line-height:1.5;flex:1;border:none;background:transparent;font-family:inherit;outline:none;cursor:text;resize:none;padding:1px 4px;margin:-1px -4px;border-radius:4px;transition:background 0.15s;overflow:hidden}
+.act-text:hover{background:#f5f4f0}
+.act-text:focus{background:#f0efe9;box-shadow:0 0 0 2px #85B7EB}
+.act-text.done{color:#b4b2a9;text-decoration:line-through}
+.add-btn{display:flex;align-items:center;gap:5px;font-size:11px;color:#b4b2a9;cursor:pointer;padding:7px 0 2px;background:none;border:none;font-family:inherit;transition:color 0.15s}
+.add-btn:hover{color:#888780}
+.pin-tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.pin-tag{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:500;padding:4px 10px;border-radius:999px;background:#FCEBEB;color:#A32D2D;border:1px solid #F09595;text-decoration:none;cursor:default;white-space:nowrap}
+.pin-tag a{color:inherit;text-decoration:none}
+.pin-tag a:hover{text-decoration:underline}
+
+.stay-bar{display:flex;align-items:center;gap:10px;padding:9px 11px;background:#f5f4f0;border-radius:8px;margin-top:10px}
+.stay-name{font-size:12px;font-weight:500;color:#1a1a18;border:none;background:transparent;font-family:inherit;outline:none;width:100%}
+.stay-name:focus{box-shadow:0 0 0 2px #85B7EB;border-radius:3px}
+.stay-note-txt{font-size:11px;color:#888780;border:none;background:transparent;font-family:inherit;outline:none;width:100%;margin-top:1px}
+.stay-note-txt:focus{box-shadow:0 0 0 2px #85B7EB;border-radius:3px}
+.booking-card{background:#fff;border-radius:12px;margin-top:10px;padding:14px;border:1px solid #e8e6e0}
+.booking-title{font-size:14px;font-weight:600;color:#1a1a18;margin-bottom:10px}
+.booking-group-label{font-size:10px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:#b4b2a9;margin:12px 0 6px}
+.booking-item{display:flex;align-items:flex-start;gap:8px;padding:6px 0;border-bottom:1px solid #f5f4f0;font-size:12px;color:#1a1a18}
+.booking-item:last-child{border-bottom:none}
+.booking-link{font-size:10px;color:#185FA5;display:block;margin-top:2px;text-decoration:none}
+.booking-link:hover{text-decoration:underline}
+.footer{text-align:center;font-size:11px;color:#b4b2a9;margin-top:1.5rem;padding-bottom:1.5rem}
+
+@media(max-width:768px){
+  .layout{flex-direction:column;height:auto;overflow:auto}
+  .sidebar{width:100%;max-width:100%;height:auto;overflow:visible;border-right:none;border-bottom:1px solid #e8e6e0}
+  .map-pane{height:300px;flex:none}
+
+}
+.leaflet-popup-content-wrapper{border-radius:10px!important;box-shadow:0 4px 20px rgba(0,0,0,0.12)!important;border:none!important}
+.leaflet-popup-content{margin:10px 14px!important;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif!important}
+.popup-day{font-size:10px;color:#888780;margin-bottom:2px;font-weight:500;text-transform:uppercase;letter-spacing:.05em}
+.popup-name{font-size:14px;font-weight:600;color:#1a1a18;margin-bottom:4px}
+.popup-desc{font-size:12px;color:#5F5E5A;line-height:1.5}
+</style>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+</head>
+<body>
+<div class="layout">
+  <div class="sidebar" id="sidebar">
+    <div class="top-bar">
+      <div>
+        <h1 class="trip-title">🌲 Vancouver Island</h1>
+        <p class="trip-sub">June 26 – July 3, 2026 · 2 adults · hiking, surfing, camping, coastal nature</p>
+      </div>
+      <div class="progress-wrap">
+        <span class="progress-label" id="prog-label">0 done</span>
+        <div class="progress-bar-bg"><div class="progress-bar-fill" id="prog-bar" style="width:0%"></div></div>
+      </div>
+    </div>
+    <button class="sidebar-map-btn" onclick="toggleMap()" id="sidebar-map-btn">🗺 Show / hide map</button>
+    <p class="hint">Click any text to edit · check boxes to track · + to add activities · pins on map show each stop</p>
+    <div id="days"></div>
+    <div class="booking-card">
+      <p class="booking-title">📋 Booking checklist</p>
+      <p class="booking-group-label">Book immediately</p>
+      <div id="booking-now"></div>
+      <p class="booking-group-label">Book soon</p>
+      <div id="booking-soon"></div>
+    </div>
+    <p class="footer">Vancouver Island Trip · June 2026 · Click any item to edit</p>
+  </div>
+  <div class="map-pane" id="map-pane">
+    <div id="map"></div>
+    <button class="map-toggle-btn" id="map-toggle-btn" onclick="toggleMap()" aria-label="toggle map">
+      <span id="map-toggle-icon">◀</span>
+      <span id="map-toggle-label">Hide map</span>
+    </button>
+  </div>
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+const days=[
+  {
+    date:"Friday, June 26",label:"Arrive Vancouver → Richmond",bg:"#F1EFE8",fg:"#5F5E5A",ferry:null,alert:null,
+    stay:{name:"Richmond hotel near YVR",note:"Marriott Vancouver Airport or Hilton Vancouver Airport"},
+    mapPin:{lat:49.1667,lng:-123.1333,name:"Richmond, BC",desc:"Night 1 · Hotel near YVR airport · Easy 10-min drive from arrivals"},
+    pins:[
+      {label:"Book rental car now",link:"https://www.enterprise.com"},
+      {label:"Book Richmond hotel",link:null}
+    ],
+    acts:[
+      {t:"10:00pm",x:"Land at YVR — pick up compact SUV rental at the airport"},
+      {t:"10:30pm",x:"Drive to Richmond hotel (~10 min from YVR)"},
+      {t:"",x:"Check in, sleep. Big day tomorrow."}
+    ]
+  },
+  {
+    date:"Saturday, June 27",label:"Richmond → BC Ferries → Vancouver Island",bg:"#E6F1FB",fg:"#0C447C",
+    ferry:{label:"⛴ BC Ferries — booked",note:"Tsawwassen → Swartz Bay · Departs 4:00pm · Arrives 5:35pm"},alert:null,
+    stay:{name:"Surf Junction Campground",note:"Arrive tonight, set up camp"},
+    mapPin:{lat:49.0100,lng:-123.1300,name:"Tsawwassen Ferry Terminal",desc:"Depart 4:00pm → Swartz Bay · Book car spot on bcferries.com"},
+    pins:[
+      {label:"BC Ferries booked ✓",link:null},
+      {label:"T&T Supermarket for groceries",link:null},
+      {label:"Surf Junction check-in",link:"https://www.surfjunction.com"}
+    ],
+    acts:[
+      {t:"9:00am",x:"Explore Richmond — one of the best Asian food cities in North America"},
+      {t:"9:30am",x:"Breakfast: Dynasty Seafood or Sun Sui Wah for dim sum — legendary"},
+      {t:"11:00am",x:"Walk the boardwalk along the Fraser River"},
+      {t:"12:00pm",x:"Lunch: Richmond Centre food court or Daon for Vietnamese pho"},
+      {t:"1:30pm",x:"Grocery run at T&T Supermarket for camp supplies — massive Asian grocery"},
+      {t:"3:00pm",x:"Drive to Tsawwassen Ferry Terminal (~30 min from Richmond)"},
+      {t:"4:00pm",x:"Board BC Ferries — Tsawwassen → Swartz Bay"},
+      {t:"5:35pm",x:"Arrive Swartz Bay, drive north on Hwy 1 → Nanaimo → Hwy 4 west"},
+      {t:"6:30pm",x:"Dinner stop in Nanaimo or Port Alberni — don't arrive at camp hungry"},
+      {t:"8:30pm",x:"Arrive Surf Junction Campground, set up camp"}
+    ]
+  },
+  {
+    date:"Sunday, June 28",label:"Surf + Whale Watching — Tofino",bg:"#E1F5EE",fg:"#085041",ferry:null,alert:null,
+    stay:{name:"Surf Junction Campground",note:"Night 1 of 3 · between Tofino and Ucluelet"},
+    mapPin:{lat:49.1529,lng:-125.9066,name:"Tofino",desc:"Surf lesson at Cox Bay · Whale watching zodiac · Wolf in the Fog dinner"},
+    pins:[
+      {label:"Surf lesson: surfsister.com",link:"https://www.surfsister.com"},
+      {label:"Whale watching: jamieswhaling.com",link:"https://www.jamieswhaling.com"},
+      {label:"Wolf in the Fog — book now",link:"https://www.exploretock.com/wolfinthefog"}
+    ],
+    acts:[
+      {t:"8:00am",x:"Drive to Tofino (~30 min from Surf Junction)"},
+      {t:"9:00am",x:"Surf lesson at Cox Bay — Surf Sister or Live to Surf (~$100–120 CAD/person incl. wetsuit). Best beginner beach on the island"},
+      {t:"12:00pm",x:"Lunch: Tacofino — legendary fish tacos, original Tofino location"},
+      {t:"2:00pm",x:"Whale watching — Jamie's Whaling Station, zodiac boat, 2.5–3 hrs. High probability of orcas + gray whales (~$149 CAD/person)"},
+      {t:"6:00pm",x:"Walk Chesterman Beach at sunset — golden hour on the Pacific"},
+      {t:"7:30pm",x:"Dinner: Wolf in the Fog (reservation required — book now at exploretock.com/wolfinthefog)"}
+    ]
+  },
+  {
+    date:"Monday, June 29",label:"Hot Springs Cove — full day boat trip",bg:"#FAEEDA",fg:"#633806",ferry:null,alert:null,
+    stay:{name:"Surf Junction Campground",note:"Night 2 of 3"},
+    mapPin:{lat:49.3683,lng:-126.2724,name:"Hot Springs Cove",desc:"Natural geothermal pools at the ocean edge · Boat or floatplane from Tofino harbour · Full day tour"},
+    pins:[
+      {label:"Hot Springs Cove: remotepassages.com",link:"https://www.remotepassages.com"},
+      {label:"Alt: jamieswhaling.com",link:"https://www.jamieswhaling.com"}
+    ],
+    acts:[
+      {t:"8:30am",x:"Drive to Tofino harbour"},
+      {t:"9:00am",x:"Hot Springs Cove boat tour departs — 1.5 hrs north into Clayoquot Sound. Natural geothermal pools right at the Pacific Ocean edge. Book with Remote Passages or Jamie's Whaling Station (~$120–140 CAD/person)"},
+      {t:"12:30pm",x:"Arrive Hot Springs Cove — hike 20 min through old growth to the pools"},
+      {t:"1:00pm",x:"Soak in the natural hot spring pools cascading into the ocean — unmissable"},
+      {t:"3:00pm",x:"Return boat departs back to Tofino"},
+      {t:"4:30pm",x:"Back in Tofino, drive to Surf Junction"},
+      {t:"7:00pm",x:"Campfire dinner — Shelter Restaurant in Tofino or cook at camp"}
+    ]
+  },
+  {
+    date:"Tuesday, June 30",label:"Pacific Rim National Park",bg:"#EAF3DE",fg:"#27500A",ferry:null,alert:null,
+    stay:{name:"Surf Junction Campground",note:"Night 3 of 3 · checkout tomorrow morning"},
+    mapPin:{lat:49.0000,lng:-125.7500,name:"Pacific Rim National Park",desc:"Long Beach · Rainforest Trail · Schooner Cove · Radar Hill · Kennedy Lake"},
+    pins:[
+      {label:"Parks Canada pass ~$10/person",link:"https://www.pc.gc.ca"},
+      {label:"Pacific Rim NP info",link:"https://www.pc.gc.ca/en/pn-np/bc/pacificrim"}
+    ],
+    acts:[
+      {t:"8:00am",x:"Long Beach — 16km of wild Pacific beach. Walk it, beachcomb, watch for grey whales from shore"},
+      {t:"10:00am",x:"Rainforest Trail A & B — two short loops (~1km each) through ancient moss-covered temperate rainforest. Free, boardwalk paths, surreal"},
+      {t:"11:30am",x:"Schooner Cove Trail — moderate 2km hike through old growth forest to a hidden cove"},
+      {t:"1:00pm",x:"Lunch: grab supplies at Ucluelet Co-op or Tofino"},
+      {t:"2:30pm",x:"Radar Hill — 5-min walk to panoramic views over the entire Pacific Rim coastline"},
+      {t:"4:00pm",x:"Kennedy Lake — peaceful forest-lined lake right off Hwy 4. Swim or paddle on the way back to camp"},
+      {t:"7:00pm",x:"Campfire feast — last night at Surf Junction. Stock up on good food for the occasion"}
+    ]
+  },
+  {
+    date:"Wednesday, July 1",label:"Canada Day · Meares Island Kayak → Waters Edge",bg:"#EEEDFE",fg:"#3C3489",ferry:null,alert:null,
+    stay:{name:"Waters Edge Shoreside Suites, Ucluelet",note:"Night 1 of 2 · full kitchen, fireplace, outdoor soaker tub, harbour views"},
+    mapPin:{lat:48.9416,lng:-125.5463,name:"Ucluelet — Waters Edge Shoreside Suites",desc:"Private island on Ucluelet harbour · Full kitchen, outdoor soaker tub · 5 min from Wild Pacific Trail"},
+    pins:[
+      {label:"Meares Island kayak: tofinoseakayaking.com",link:"https://www.tofinoseakayaking.com"},
+      {label:"Dinner: Pluvio — book now",link:"https://www.pluviorestaurant.com"}
+    ],
+    acts:[
+      {t:"8:00am",x:"Pack up Surf Junction, drive to Tofino (~30 min)"},
+      {t:"9:00am",x:"Kayak to Meares Island — guided paddle through old growth cedars accessible only by water. Big Tree Trail: massive ancient red cedars. Tofino Sea Kayaking (~$80–100 CAD/person)"},
+      {t:"12:00pm",x:"Lunch in Tofino — explore the harbour, grab a bite at The Shed or Tofino Brewing"},
+      {t:"2:00pm",x:"Drive to Ucluelet (~35 min), check into Waters Edge Shoreside Suites"},
+      {t:"4:00pm",x:"Settle into your harbour suite — watch for sea lions, otters, and eagles from your deck"},
+      {t:"7:00pm",x:"Canada Day celebrations in Ucluelet — bonfire on the beach, local festivities"},
+      {t:"8:00pm",x:"Dinner: Pluvio Restaurant — one of the best restaurants on Vancouver Island (book now at pluviorestaurant.com)"}
+    ]
+  },
+  {
+    date:"Thursday, July 2",label:"Broken Group Islands + Wild Pacific Trail",bg:"#FBEAF0",fg:"#72243E",ferry:null,alert:null,
+    stay:{name:"Waters Edge Shoreside Suites, Ucluelet",note:"Night 2 of 2 · checkout 7am tomorrow"},
+    mapPin:{lat:48.8700,lng:-125.3000,name:"Broken Group Islands — Barkley Sound",desc:"100+ islands · Sea kayaking · Exceptional wildlife · Glassy water · Departs from Ucluelet"},
+    pins:[
+      {label:"Broken Group kayak: majesticocean.com",link:"https://www.majesticocean.com"},
+      {label:"Wild Pacific Trail map",link:"https://www.wildpacifictrail.com"},
+      {label:"Ucluelet Aquarium",link:"https://www.uclueletaquarium.org"}
+    ],
+    acts:[
+      {t:"8:00am",x:"Broken Group Islands sea kayak — half-day guided tour into Barkley Sound. 100+ islands, incredible wildlife, glassy water. Majestic Ocean Kayaking (~$85–110 CAD/person)"},
+      {t:"1:00pm",x:"Lunch: Howler's Pub — casual, local, great fresh seafood"},
+      {t:"2:30pm",x:"Wild Pacific Trail — clifftop coastal loop starting at Amphitrite Lighthouse. Dramatic crashing waves, 2.5km easy-moderate. Steps from Waters Edge"},
+      {t:"4:00pm",x:"Ucluelet Aquarium — world's first catch-and-release aquarium. Fascinating Pacific Northwest marine life"},
+      {t:"6:00pm",x:"Soak in the outdoor soaker tub at Waters Edge, watch the harbour at sunset"},
+      {t:"8:00pm",x:"Early pack up and prep for 7am departure — last night on the island"}
+    ]
+  },
+  {
+    date:"Friday, July 3",label:"Cathedral Grove → Victoria → Ferry → Fly Home",bg:"#F1EFE8",fg:"#5F5E5A",
+    ferry:{label:"⛴ BC Ferries — MODIFY BOOKING to 4pm",note:"Swartz Bay → Tsawwassen · Departs 4:00pm · Arrives 5:35pm · 5.5 hrs buffer before flight"},
+    alert:"Leave Victoria by 3:00pm sharp. Board ferry ~3:30pm. Arrive Tsawwassen 5:35pm → drive YVR 30 min → return rental car → check in + security. Target airport by 8:30pm for 11:15pm flight.",
+    stay:{name:"✈️ In the air — JetBlue YVR → JFK",note:"Departs YVR 11:15pm · Arrives JFK next morning"},
+    mapPin:{lat:48.4208,lng:-123.3692,name:"Victoria — Inner Harbour",desc:"Last stop · Fisherman's Wharf, Beacon Hill Park, Government Street · Leave by 3pm for Swartz Bay ferry"},
+    pins:[
+      {label:"Modify BC Ferries to 4pm: bcferries.com",link:"https://www.bcferries.com"},
+      {label:"Leave Victoria by 3pm — no exceptions",link:null}
+    ],
+    acts:[
+      {t:"7:00am",x:"Checkout Waters Edge, drive east on Hwy 4 toward Port Alberni"},
+      {t:"8:30am",x:"Stop: Cathedral Grove / MacMillan Provincial Park — ancient 800-year-old Douglas firs. 45-min walk through the forest. Free entry, unmissable"},
+      {t:"10:30am",x:"Continue south on Hwy 1 toward Victoria (~2 hrs from Cathedral Grove)"},
+      {t:"12:30pm",x:"Arrive Victoria — lunch at Fisherman's Wharf (floating restaurants, fresh fish and chips) or Chinatown"},
+      {t:"1:30pm",x:"Explore Victoria: Inner Harbour waterfront, Beacon Hill Park (free, ocean views), Government Street"},
+      {t:"3:00pm",x:"Drive to Swartz Bay Ferry Terminal (~30 min from downtown Victoria) — DO NOT be late"},
+      {t:"4:00pm",x:"Board BC Ferries — Swartz Bay → Tsawwassen (MODIFY BOOKING to this sailing)"},
+      {t:"5:35pm",x:"Arrive Tsawwassen, drive to YVR (~30 min)"},
+      {t:"6:10pm",x:"Return rental car at YVR — allow 20 min for this process"},
+      {t:"6:30pm",x:"Check in, clear US customs, security — US pre-clearance at YVR takes time"},
+      {t:"9:00pm",x:"Grab dinner at YVR — plenty of options airside"},
+      {t:"11:15pm",x:"Fly home to NYC — JetBlue YVR → JFK"}
+    ]
+  }
+];;
+
+const bookNow=[
+  {x:"Flights booked — JetBlue via Chase Travel (JFK→YVR Jun 26 6:23pm, YVR→JFK Jul 3 11:15pm) ✓",link:null},
+  {x:"BC Ferries Jun 27: Tsawwassen → Swartz Bay 4:00pm — booked ✓",link:null},
+  {x:"BC Ferries Jul 3: MODIFY to Swartz Bay → Tsawwassen 4:00pm sailing",link:"https://www.bcferries.com"},
+  {x:"Surf Junction Campground Jun 28–Jul 1 — booked ✓",link:null},
+  {x:"Waters Edge Shoreside Suites Ucluelet Jul 1–3 — booked ✓",link:null},
+  {x:"Richmond hotel — Jun 26, 1 night near YVR",link:null},
+  {x:"Wolf in the Fog — Jun 28 dinner reservation",link:"https://www.exploretock.com/wolfinthefog"},
+  {x:"Pluvio Restaurant Ucluelet — Jul 1 dinner reservation",link:"https://www.pluviorestaurant.com"},
+  {x:"Compact SUV rental at YVR — 8 days",link:"https://www.enterprise.com"}
+];
+const bookSoon=[
+  {x:"Surf lesson — Jun 28, Cox Bay",link:"https://www.surfsister.com"},
+  {x:"Whale watching — Jun 28, zodiac tour 2pm",link:"https://www.jamieswhaling.com"},
+  {x:"Hot Springs Cove boat tour — Jun 29, 9am",link:"https://www.remotepassages.com"},
+  {x:"Meares Island kayak — Jul 1, 9am",link:"https://www.tofinoseakayaking.com"},
+  {x:"Broken Group Islands kayak — Jul 2, 8am",link:"https://www.majesticocean.com"}
+];
+
+const pinColors=["#5F5E5A","#185FA5","#0F6E56","#854F0B","#3B6D11","#534AB7","#993556","#5F5E5A"];
+
+let totalActs=0;
+const allChecks={};
+
+function updateProgress(){
+  const done=Object.values(allChecks).filter(Boolean).length;
+  const pct=totalActs>0?Math.round((done/totalActs)*100):0;
+  document.getElementById('prog-label').textContent=done+' of '+totalActs+' done';
+  document.getElementById('prog-bar').style.width=pct+'%';
+  days.forEach((_,di)=>{
+    const keys=Object.keys(allChecks).filter(k=>k.startsWith('d'+di+'-'));
+    const d=keys.filter(k=>allChecks[k]).length;
+    const el=document.getElementById('dp-'+di);
+    if(el)el.textContent=d>0?d+'/'+keys.length:'';
+  });
+}
+
+function makeCheck(key){
+  const btn=document.createElement('button');
+  btn.className='check-btn'+(allChecks[key]?' checked':'');
+  btn.setAttribute('aria-label','mark done');
+  btn.textContent='✓';
+  btn.onclick=()=>{
+    allChecks[key]=!allChecks[key];
+    btn.classList.toggle('checked',allChecks[key]);
+    const row=btn.closest('.activity-row,.booking-item');
+    if(row){const tx=row.querySelector('.act-text');if(tx)tx.classList.toggle('done',allChecks[key]);}
+    updateProgress();
+  };
+  return btn;
+}
+
+function makeAct(di,ai,act){
+  const key='d'+di+'-'+ai;
+  allChecks[key]=false;totalActs++;
+  const row=document.createElement('div');row.className='activity-row';
+  const cb=makeCheck(key);
+  const ti=document.createElement('input');
+  ti.className='act-time';ti.value=act.t;ti.placeholder='time';ti.setAttribute('aria-label','time');
+  const tx=document.createElement('textarea');
+  tx.className='act-text';tx.value=act.x;tx.rows=1;tx.setAttribute('aria-label','activity');
+  tx.addEventListener('input',()=>{tx.style.height='auto';tx.style.height=tx.scrollHeight+'px';});
+  row.append(cb,ti,tx);return row;
+}
+
+function makeAddBtn(list,di){
+  const btn=document.createElement('button');
+  btn.className='add-btn';btn.textContent='+ add activity';
+  btn.onclick=()=>{
+    const ai='x'+Date.now();const key='d'+di+'-'+ai;
+    allChecks[key]=false;totalActs++;
+    const row=document.createElement('div');row.className='activity-row';
+    const cb=makeCheck(key);
+    const ti=document.createElement('input');ti.className='act-time';ti.placeholder='time';ti.setAttribute('aria-label','time');
+    const tx=document.createElement('textarea');tx.className='act-text';tx.rows=1;tx.placeholder='add activity...';tx.setAttribute('aria-label','activity');
+    tx.addEventListener('input',()=>{tx.style.height='auto';tx.style.height=tx.scrollHeight+'px';});
+    row.append(cb,ti,tx);list.appendChild(row);tx.focus();updateProgress();
+  };
+  return btn;
+}
+
+function makeBookingItem(item,key){
+  allChecks[key]=false;totalActs++;
+  const row=document.createElement('div');row.className='booking-item';
+  const cb=makeCheck(key);
+  const inner=document.createElement('div');inner.style.flex='1';
+  const tx=document.createElement('textarea');
+  tx.className='act-text';tx.value=item.x;tx.rows=1;tx.style.fontSize='12px';
+  tx.addEventListener('input',()=>{tx.style.height='auto';tx.style.height=tx.scrollHeight+'px';});
+  inner.appendChild(tx);
+  if(item.link){const a=document.createElement('a');a.href=item.link;a.className='booking-link';a.target='_blank';a.rel='noopener';a.textContent=item.link.replace('https://','');inner.appendChild(a);}
+  row.append(cb,inner);return row;
+}
+
+const container=document.getElementById('days');
+days.forEach((day,di)=>{
+  const card=document.createElement('div');card.className='day-card';
+  const header=document.createElement('div');header.className='day-header';
+  header.innerHTML=`<div class="day-num" style="background:${day.bg};color:${day.fg}">${di+1}</div><div class="day-meta"><p class="day-date">${day.date}</p><p class="day-label">${day.label}</p></div><span class="day-progress" id="dp-${di}"></span><span class="chevron" id="chev-${di}">▾</span>`;
+  header.onclick=()=>{
+    const b=document.getElementById('body-'+di);const c=document.getElementById('chev-'+di);
+    const open=b.classList.toggle('open');c.classList.toggle('open',open);c.textContent=open?'▴':'▾';
+    if(open&&day.mapPin&&window.dayMarkers&&window.dayMarkers[di]){
+      window.dayMarkers[di].openPopup();
+      window.map.setView([day.mapPin.lat,day.mapPin.lng],10,{animate:true});
+    }
+  };
+  const body=document.createElement('div');body.className='day-body';body.id='body-'+di;
+  if(day.ferry){const fb=document.createElement('div');fb.className='ferry-bar';fb.innerHTML=`<div><p class="ferry-name">${day.ferry.label}</p><p class="ferry-note">${day.ferry.note}</p></div>`;body.appendChild(fb);}
+  if(day.alert){const ab=document.createElement('div');ab.className='alert-bar';ab.innerHTML=`<span style="font-size:14px;flex-shrink:0">⚠️</span><p class="alert-text">${day.alert}</p>`;body.appendChild(ab);}
+  const sl=document.createElement('p');sl.className='sec-label';sl.textContent='Schedule';body.appendChild(sl);
+  const al=document.createElement('div');
+  day.acts.forEach((act,ai)=>al.appendChild(makeAct(di,ai,act)));
+  body.appendChild(al);body.appendChild(makeAddBtn(al,di));
+  const sb=document.createElement('div');sb.className='stay-bar';
+  sb.innerHTML=`<span style="font-size:16px">🏕</span><div style="flex:1;min-width:0"><input class="stay-name" value="${day.stay.name}" aria-label="accommodation"><input class="stay-note-txt" value="${day.stay.note}" aria-label="note"></div>`;
+  body.appendChild(sb);
+  if(day.pins&&day.pins.length){
+    const pt=document.createElement('div');pt.className='pin-tags';
+    day.pins.forEach(p=>{
+      const tag=document.createElement('span');tag.className='pin-tag';
+      const pin=document.createElement('span');pin.textContent='📌';pin.style.fontSize='11px';
+      tag.appendChild(pin);
+      if(p.link){const a=document.createElement('a');a.href=p.link;a.target='_blank';a.rel='noopener';a.textContent=p.label;tag.appendChild(a);}
+      else{const s=document.createElement('span');s.textContent=p.label;tag.appendChild(s);}
+      pt.appendChild(tag);
+    });
+    body.appendChild(pt);
+  }
+  card.append(header,body);container.appendChild(card);
+});
+
+const nowEl=document.getElementById('booking-now');
+const soonEl=document.getElementById('booking-soon');
+bookNow.forEach((item,i)=>nowEl.appendChild(makeBookingItem(item,'bn-'+i)));
+bookSoon.forEach((item,i)=>soonEl.appendChild(makeBookingItem(item,'bs-'+i)));
+
+days.forEach((_,di)=>{
+  const b=document.getElementById('body-'+di);
+  const c=document.getElementById('chev-'+di);
+  if(b){b.classList.add('open');}
+  if(c){c.classList.add('open');c.textContent='▴';}
+});
+setTimeout(()=>{
+  document.querySelectorAll('textarea').forEach(tx=>{tx.style.height='auto';tx.style.height=tx.scrollHeight+'px';});
+  updateProgress();
+},100);
+
+function toggleMap(){
+  const pane=document.getElementById('map-pane');
+  const sidebar=document.getElementById('sidebar');
+  const icon=document.getElementById('map-toggle-icon');
+  const lbl=document.getElementById('map-toggle-label');
+  const collapsed=pane.classList.toggle('collapsed');
+  sidebar.classList.toggle('expanded',collapsed);
+  if(collapsed){
+    icon.textContent='▶';
+    lbl.textContent='Show map';
+  } else {
+    icon.textContent='◀';
+    lbl.textContent='Hide map';
+    setTimeout(()=>{if(window.map)window.map.invalidateSize();},320);
+  }
+}
+
+window.addEventListener('load',()=>{
+  const map=L.map('map').setView([49.5,-124.5],7);
+  window.map=map;
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'© OpenStreetMap contributors',maxZoom:18}).addTo(map);
+
+  const routeCoords=days.filter(d=>d.mapPin).map(d=>[d.mapPin.lat,d.mapPin.lng]);
+  L.polyline(routeCoords,{color:'#E24B4A',weight:2,opacity:0.5,dashArray:'6,6'}).addTo(map);
+
+  window.dayMarkers={};
+  days.forEach((day,di)=>{
+    if(!day.mapPin)return;
+    const p=day.mapPin;
+    const svgIcon=`<svg xmlns="http://www.w3.org/2000/svg" width="32" height="40" viewBox="0 0 32 40"><path d="M16 0C7.163 0 0 7.163 0 16c0 10 16 24 16 24s16-14 16-24C32 7.163 24.837 0 16 0z" fill="#E24B4A"/><circle cx="16" cy="16" r="7" fill="#fff"/><text x="16" y="20.5" text-anchor="middle" font-size="11" font-weight="700" font-family="-apple-system,sans-serif" fill="#E24B4A">${di+1}</text></svg>`;
+    const icon=L.divIcon({html:svgIcon,iconSize:[32,40],iconAnchor:[16,40],popupAnchor:[0,-42],className:''});
+    const marker=L.marker([p.lat,p.lng],{icon}).addTo(map);
+    marker.bindPopup(`<div class="popup-day">Day ${di+1} · ${day.date}</div><p class="popup-name">${p.name}</p><p class="popup-desc">${p.desc}</p>`);
+    marker.on('click',()=>{
+      const body=document.getElementById('body-'+di);
+      const chev=document.getElementById('chev-'+di);
+      if(!body.classList.contains('open')){
+        body.classList.add('open');chev.classList.add('open');chev.textContent='▴';
+      }
+      body.scrollIntoView({behavior:'smooth',block:'start'});
+    });
+    window.dayMarkers[di]=marker;
+  });
+});
+</script>
+</body>
+</html>
