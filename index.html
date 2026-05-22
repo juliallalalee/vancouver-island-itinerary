@@ -8,9 +8,10 @@
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f5f4f0;color:#1a1a18;min-height:100vh;padding:0}
 .layout{display:flex;height:100vh;overflow:hidden}
-.sidebar{width:420px;min-width:320px;max-width:480px;overflow-y:auto;padding:1.5rem 1.25rem;flex-shrink:0;background:#f5f4f0;border-right:1px solid #e8e6e0;transition:width 0.3s,max-width 0.3s}
+.sidebar{width:100%;max-width:860px;margin:0 auto;overflow-y:auto;padding:2rem 1.5rem;flex-shrink:0;background:#f5f4f0;border-right:none;transition:width 0.3s,max-width 0.3s}
 .map-pane{flex:1;position:relative;transition:flex 0.3s,width 0.3s;overflow:hidden}
 .map-pane.collapsed{flex:0;width:0;min-width:0}
+.map-pane{flex:0;width:0;min-width:0;overflow:hidden}
 .sidebar.expanded{width:100%;max-width:100%;border-right:none}
 .sidebar.expanded .day-card{max-width:860px;margin-left:auto;margin-right:auto}
 .sidebar.expanded .booking-card{max-width:860px;margin-left:auto;margin-right:auto}
@@ -19,12 +20,12 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 #map{width:100%;height:100%}
 .map-toggle-btn{position:absolute;top:12px;left:12px;z-index:1000;background:#fff;border:1px solid #e8e6e0;border-radius:8px;padding:7px 12px;font-size:12px;font-weight:500;cursor:pointer;font-family:inherit;color:#1a1a18;display:flex;align-items:center;gap:6px;box-shadow:0 1px 4px rgba(0,0,0,0.08)}
 .map-toggle-btn:hover{background:#f5f4f0}
-.sidebar-map-btn{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:500;padding:4px 10px;border-radius:6px;background:#E6F1FB;color:#185FA5;border:1px solid #85B7EB;cursor:pointer;font-family:inherit;margin-bottom:0.75rem}
+.sidebar-map-btn{display:none}
 .sidebar-map-btn:hover{background:#B5D4F4}
 .top-bar{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:1rem;flex-wrap:wrap;gap:10px}
 .trip-title{font-size:20px;font-weight:600;color:#1a1a18;letter-spacing:-0.3px}
 .trip-sub{font-size:12px;color:#888780;margin-top:3px}
-.progress-wrap{display:flex;align-items:center;gap:8px;padding-top:4px}
+.progress-wrap{display:none}
 .progress-label{font-size:12px;color:#888780;white-space:nowrap}
 .progress-bar-bg{width:90px;height:5px;background:#e8e6e0;border-radius:999px;overflow:hidden}
 .progress-bar-fill{height:100%;background:#1D9E75;border-radius:999px;transition:width 0.3s}
@@ -59,10 +60,25 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .act-text.done{color:#b4b2a9;text-decoration:line-through}
 .add-btn{display:flex;align-items:center;gap:5px;font-size:11px;color:#b4b2a9;cursor:pointer;padding:7px 0 2px;background:none;border:none;font-family:inherit;transition:color 0.15s}
 .add-btn:hover{color:#888780}
+.del-btn{width:18px;height:18px;border-radius:4px;border:none;background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px;font-size:13px;color:transparent;transition:all 0.15s;padding:0;font-family:inherit}
+.activity-row:hover .del-btn{color:#d3d1c7}
+.del-btn:hover{color:#A32D2D!important;background:#FCEBEB}
 .pin-tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
 .pin-tag{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:500;padding:4px 10px;border-radius:999px;background:#FCEBEB;color:#A32D2D;border:1px solid #F09595;text-decoration:none;cursor:default;white-space:nowrap}
 .pin-tag a{color:inherit;text-decoration:none}
 .pin-tag a:hover{text-decoration:underline}
+.pin-tag-del{background:none;border:none;cursor:pointer;color:#A32D2D;font-size:11px;padding:0 0 0 4px;line-height:1;opacity:0.5;font-family:inherit}
+.pin-tag-del:hover{opacity:1}
+.add-pin-btn{display:inline-flex;align-items:center;gap:4px;font-size:11px;color:#A32D2D;background:#FCEBEB;border:1px dashed #F09595;border-radius:999px;padding:3px 10px;cursor:pointer;font-family:inherit;font-weight:500;transition:background 0.15s}
+.add-pin-btn:hover{background:#f9d8d8}
+.pin-input-row{display:flex;gap:6px;margin-top:8px;align-items:center;flex-wrap:wrap}
+.pin-input{font-size:11px;padding:4px 8px;border:1px solid #F09595;border-radius:6px;font-family:inherit;outline:none;color:#1a1a18;background:#fff;flex:1;min-width:120px}
+.pin-input:focus{box-shadow:0 0 0 2px #F09595}
+.pin-link-input{font-size:11px;padding:4px 8px;border:1px solid #e8e6e0;border-radius:6px;font-family:inherit;outline:none;color:#1a1a18;background:#fff;flex:1;min-width:100px}
+.pin-link-input:focus{box-shadow:0 0 0 2px #85B7EB}
+.pin-save-btn{font-size:11px;padding:4px 10px;border-radius:6px;background:#A32D2D;color:#fff;border:none;cursor:pointer;font-family:inherit;font-weight:500;white-space:nowrap}
+.pin-save-btn:hover{background:#7e1f1f}
+.pin-cancel-btn{font-size:11px;padding:4px 8px;border-radius:6px;background:transparent;color:#888780;border:1px solid #e8e6e0;cursor:pointer;font-family:inherit}
 
 .stay-bar{display:flex;align-items:center;gap:10px;padding:9px 11px;background:#f5f4f0;border-radius:8px;margin-top:10px}
 .stay-name{font-size:12px;font-weight:500;color:#1a1a18;border:none;background:transparent;font-family:inherit;outline:none;width:100%}
@@ -80,7 +96,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 
 @media(max-width:768px){
   .layout{flex-direction:column;height:auto;overflow:auto}
-  .sidebar{width:100%;max-width:100%;height:auto;overflow:visible;border-right:none;border-bottom:1px solid #e8e6e0;transition:none}
+  .sidebar{width:100%;max-width:100%;height:auto;overflow:visible;border-right:none;border-bottom:none;padding:1.25rem 1rem;transition:none}
   .sidebar.expanded{width:100%;max-width:100%}
   .map-pane{height:300px;flex:none;transition:height 0.3s,opacity 0.3s;overflow:hidden}
   .map-pane.collapsed{height:0;opacity:0;pointer-events:none}
@@ -107,7 +123,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
         <div class="progress-bar-bg"><div class="progress-bar-fill" id="prog-bar" style="width:0%"></div></div>
       </div>
     </div>
-    <button class="sidebar-map-btn" onclick="toggleMap()" id="sidebar-map-btn">🗺 Show / hide map</button>
+    <button class="sidebar-map-btn" onclick="toggleMap()" id="sidebar-map-btn">🗺 Show map</button>
     <p class="hint">Click any text to edit · check boxes to track · + to add activities · pins on map show each stop</p>
     <div id="days"></div>
     <div class="booking-card">
@@ -327,6 +343,46 @@ function updateProgress(){
   });
 }
 
+function addPinTag(container,label,link){
+  const tag=document.createElement('span');tag.className='pin-tag';
+  const pin=document.createElement('span');pin.textContent='📌';pin.style.fontSize='11px';
+  tag.appendChild(pin);
+  if(link){
+    const a=document.createElement('a');a.href=link;a.target='_blank';a.rel='noopener';a.textContent=' '+label;
+    tag.appendChild(a);
+  } else {
+    const s=document.createElement('span');s.textContent=' '+label;tag.appendChild(s);
+  }
+  const db=document.createElement('button');db.className='pin-tag-del';db.textContent='✕';db.setAttribute('aria-label','remove tag');
+  db.onclick=()=>{tag.style.opacity='0';tag.style.transition='opacity 0.2s';setTimeout(()=>tag.remove(),200);};
+  tag.appendChild(db);
+  // insert before the add button
+  const addBtn=container.querySelector('.add-pin-btn');
+  container.insertBefore(tag,addBtn);
+}
+
+function showPinInput(container,addBtn){
+  if(container.querySelector('.pin-input-row'))return;
+  addBtn.style.display='none';
+  const row=document.createElement('div');row.className='pin-input-row';
+  const labelIn=document.createElement('input');labelIn.className='pin-input';labelIn.placeholder='Tag label e.g. Book surf lesson';
+  const linkIn=document.createElement('input');linkIn.className='pin-link-input';linkIn.placeholder='URL (optional)';
+  const saveBtn=document.createElement('button');saveBtn.className='pin-save-btn';saveBtn.textContent='Add';
+  const cancelBtn=document.createElement('button');cancelBtn.className='pin-cancel-btn';cancelBtn.textContent='Cancel';
+  saveBtn.onclick=()=>{
+    const lbl=labelIn.value.trim();
+    if(!lbl)return;
+    const lnk=linkIn.value.trim()||null;
+    addPinTag(container,lbl,lnk);
+    row.remove();addBtn.style.display='';
+  };
+  cancelBtn.onclick=()=>{row.remove();addBtn.style.display='';};
+  labelIn.addEventListener('keydown',e=>{if(e.key==='Enter')saveBtn.click();if(e.key==='Escape')cancelBtn.click();});
+  row.append(labelIn,linkIn,saveBtn,cancelBtn);
+  container.appendChild(row);
+  labelIn.focus();
+}
+
 function makeCheck(key){
   const btn=document.createElement('button');
   btn.className='check-btn'+(allChecks[key]?' checked':'');
@@ -352,7 +408,22 @@ function makeAct(di,ai,act){
   const tx=document.createElement('textarea');
   tx.className='act-text';tx.value=act.x;tx.rows=1;tx.setAttribute('aria-label','activity');
   tx.addEventListener('input',()=>{tx.style.height='auto';tx.style.height=tx.scrollHeight+'px';});
-  row.append(cb,ti,tx);return row;
+  const db=makeDelBtn(row,key);
+  row.append(cb,ti,tx,db);return row;
+}
+
+function makeDelBtn(row,key){
+  const db=document.createElement('button');
+  db.className='del-btn';db.textContent='✕';db.setAttribute('aria-label','delete activity');
+  db.onclick=(e)=>{
+    e.stopPropagation();
+    if(allChecks[key]){totalActs--;delete allChecks[key];}
+    else{totalActs--;delete allChecks[key];}
+    row.style.opacity='0';row.style.transition='opacity 0.2s';
+    setTimeout(()=>row.remove(),200);
+    updateProgress();
+  };
+  return db;
 }
 
 function makeAddBtn(list,di){
@@ -366,7 +437,8 @@ function makeAddBtn(list,di){
     const ti=document.createElement('input');ti.className='act-time';ti.placeholder='time';ti.setAttribute('aria-label','time');
     const tx=document.createElement('textarea');tx.className='act-text';tx.rows=1;tx.placeholder='add activity...';tx.setAttribute('aria-label','activity');
     tx.addEventListener('input',()=>{tx.style.height='auto';tx.style.height=tx.scrollHeight+'px';});
-    row.append(cb,ti,tx);list.appendChild(row);tx.focus();updateProgress();
+    const db=makeDelBtn(row,key);
+    row.append(cb,ti,tx,db);list.appendChild(row);tx.focus();updateProgress();
   };
   return btn;
 }
@@ -407,18 +479,16 @@ days.forEach((day,di)=>{
   const sb=document.createElement('div');sb.className='stay-bar';
   sb.innerHTML=`<span style="font-size:16px">🏕</span><div style="flex:1;min-width:0"><input class="stay-name" value="${day.stay.name}" aria-label="accommodation"><input class="stay-note-txt" value="${day.stay.note}" aria-label="note"></div>`;
   body.appendChild(sb);
+  const pt=document.createElement('div');pt.className='pin-tags';pt.id='pins-'+di;
   if(day.pins&&day.pins.length){
-    const pt=document.createElement('div');pt.className='pin-tags';
-    day.pins.forEach(p=>{
-      const tag=document.createElement('span');tag.className='pin-tag';
-      const pin=document.createElement('span');pin.textContent='📌';pin.style.fontSize='11px';
-      tag.appendChild(pin);
-      if(p.link){const a=document.createElement('a');a.href=p.link;a.target='_blank';a.rel='noopener';a.textContent=p.label;tag.appendChild(a);}
-      else{const s=document.createElement('span');s.textContent=p.label;tag.appendChild(s);}
-      pt.appendChild(tag);
-    });
-    body.appendChild(pt);
+    day.pins.forEach(p=>addPinTag(pt,p.label,p.link||null));
   }
+  // add pin button
+  const addPinBtn=document.createElement('button');
+  addPinBtn.className='add-pin-btn';addPinBtn.textContent='📌 add tag';
+  addPinBtn.onclick=()=>showPinInput(pt,addPinBtn);
+  pt.appendChild(addPinBtn);
+  body.appendChild(pt);
   card.append(header,body);container.appendChild(card);
 });
 
